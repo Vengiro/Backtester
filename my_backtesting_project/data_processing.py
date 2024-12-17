@@ -1,8 +1,9 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
+from my_backtesting_project.Strategy import Strategy
 
 class Backtester:
-    def __init__(self, ticker: str, balance: float):
+    def __init__(self, ticker: str, balance: float, strategy: Strategy):
         self.ticker = ticker
         self.data = yf.Ticker(ticker).history(period="1d")
         self.data["Return"] = self.data["Close"].pct_change()
@@ -12,7 +13,7 @@ class Backtester:
         self.shares = 0
         self.purchases = []
         self.sells = []
-        plt.show()
+        self.strategy = strategy
 
 
     def get_historical_data(self, start_date, end_date):
@@ -30,3 +31,9 @@ class Backtester:
         self.shares -= amount / price
         self.balance += amount
         self.sells.append(date)
+
+    def run(self):
+        self.data = self.strategy.generate_signals(self.data)
+
+        ## TODO Apply signals
+
