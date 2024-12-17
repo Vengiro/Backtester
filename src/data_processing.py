@@ -1,6 +1,6 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
-from my_backtesting_project.Strategy import Strategy
+from src.Strategy import Strategy
 
 class Backtester:
     def __init__(self, ticker: str, balance: float, strategy: Strategy):

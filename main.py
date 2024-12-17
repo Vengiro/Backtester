@@ -1,6 +1,6 @@
-from my_backtesting_project.Strategy import Strategy
-from my_backtesting_project.data_processing import get_historical_data
-from my_backtesting_project.display import plot_data
+from src.Strategy import Strategy
+from src.data_processing import get_historical_data
+from src.display import plot_data
 import argparse
 import matplotlib.pyplot as plt
 
