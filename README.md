@@ -1,1 +1,1 @@
-Backtester of trading strategies.
+Backtester of strategies.
