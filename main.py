@@ -1,6 +1,6 @@
-from src.Strategy import Strategy
-from src.data_processing import get_historical_data
-from src.display import plot_data
+from core.Strategy import Strategy
+from core.backtester import get_historical_data
+from core.display import plot_data
 import argparse
 import matplotlib.pyplot as plt
 
