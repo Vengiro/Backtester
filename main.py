@@ -1,4 +1,4 @@
-from core.Strategy import Strategy
+from core.strategy import Strategy
 from core.backtester import get_historical_data
 from core.display import plot_data
 import argparse

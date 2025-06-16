@@ -1,39 +1,36 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
-from core.Strategy import Strategy
+from core.strategy import Strategy
+from core.display import plot_data
+from core.data_feed import DataFeed
+from core.data_loader import DataLoader
+from core.portfolio import Portfolio
 
 class Backtester:
-    def __init__(self, ticker: str, balance: float, strategy: Strategy):
-        self.ticker = ticker
-        self.data = yf.Ticker(ticker).history(period="1d")
-        self.data["Return"] = self.data["Close"].pct_change()
-        self.data["Cumulative Return"] = (1 + self.data["Return"]).cumprod()
-        self.data["Cumulative Return"].plot()
-        self.balance = balance
-        self.shares = 0
-        self.purchases = []
-        self.sells = []
+    def __init__(self, strategy: Strategy, data_loader: DataLoader, portfolio: Portfolio):
+        """
+        Initialize the Backtester with a strategy, data loader, and portfolio.
+
+        :param strategy: Strategy to be tested.
+        :param data_loader: DataLoader to load historical data.
+        :param portfolio: Portfolio to manage trades and cash.
+        """
         self.strategy = strategy
+        self.data_loader = data_loader
+        self.portfolio = portfolio
+        self.data_feed = DataFeed(self.data_loader.load())
 
 
-    def get_historical_data(self, start_date, end_date):
-        data = yf.download(ticker, start=start_date, end=end_date)
-        return data
-
-    def buy(self, date, amount):
-        price = self.data.loc[date, "Close"]
-        self.shares += amount / price
-        self.balance -= amount
-        self.purchases.append(date)
-
-    def sell(self, date, amount):
-        price = self.data.loc[date, "Close"]
-        self.shares -= amount / price
-        self.balance += amount
-        self.sells.append(date)
 
     def run(self):
-        self.data = self.strategy.generate_signals(self.data)
+        """
+        Run the backtesting process.
+        This method will iterate through the data, generate signals, and execute trades.
+        """
+        while self.data_feed.has_next():
+            data_point = self.data_feed.next()
+            self.strategy.update_history(data_point)
+            orders = self.strategy.generate_order()
 
-        ## TODO Apply signals
-
+            for order in orders:
+                self.portfolio.execute(order, data_point['Close'])
