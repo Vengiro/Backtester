@@ -24,7 +24,7 @@ class Strategy(ABC):
 
 
     @abstractmethod
-    def generate_order(self) -> list[dict]:
+    def generate_action(self) -> str:
         """
         Generate trading signals based on the provided data.
         This method should be implemented by subclasses.

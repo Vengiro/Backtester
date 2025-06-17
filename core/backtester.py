@@ -4,10 +4,10 @@ from core.strategy import Strategy
 from core.display import plot_data
 from core.data_feed import DataFeed
 from core.data_loader import DataLoader
-from core.portfolio import Portfolio
+from core.portfolio import PortfolioManager
 
 class Backtester:
-    def __init__(self, strategy: Strategy, data_loader: DataLoader, portfolio: Portfolio):
+    def __init__(self, strategy: Strategy, data_loader: DataLoader, portfolioManager: PortfolioManager):
         """
         Initialize the Backtester with a strategy, data loader, and portfolio.
 
@@ -17,7 +17,7 @@ class Backtester:
         """
         self.strategy = strategy
         self.data_loader = data_loader
-        self.portfolio = portfolio
+        self.portfolioManager = portfolioManager
         self.data_feed = DataFeed(self.data_loader.load())
 
 
@@ -30,7 +30,5 @@ class Backtester:
         while self.data_feed.has_next():
             data_point = self.data_feed.next()
             self.strategy.update_history(data_point)
-            orders = self.strategy.generate_order()
-
-            for order in orders:
-                self.portfolio.execute(order, data_point['Close'])
+            action = self.strategy.generate_action()
+            self.portfolioManager.execute_order(action, data_point['Close'])
