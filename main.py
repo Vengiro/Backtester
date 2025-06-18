@@ -8,9 +8,8 @@ import argparse
 import yfinance
 
 def main(args):
-    data = yfinance.download(args.ticker, period=args.period)
     strategy = SimpleMovingAverageStrategy(short_window=20, long_window=50)
-    data_loader = DataLoader(data)
+    data_loader = DataLoader(ticker=args.ticker, period=args.period, use_saved_data=True)
     portfolio = Portfolio()
     portfolio_manager = PortfolioManager(portfolio)
     backtester = Backtester(strategy, data_loader, portfolio_manager)
@@ -22,6 +21,6 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ticker", type=str, help="The stock ticker to backtest", default="AAPL")
+    parser.add_argument("--ticker", type=str, help="The stock ticker to backtest", default="MSFT")
     parser.add_argument("--period", type=str, help="The period of the data", default="60d")
     main(parser.parse_args())
