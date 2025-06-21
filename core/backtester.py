@@ -7,7 +7,7 @@ from core.data_loader import DataLoader
 from core.portfolio import PortfolioManager
 
 class Backtester:
-    def __init__(self, strategy: Strategy, data_loader: DataLoader, portfolioManager: PortfolioManager):
+    def __init__(self, strategy: Strategy, data_loader: DataLoader, portfolioManager: PortfolioManager, ticker: str):
         """
         Initialize the Backtester with a strategy, data loader, and portfolio.
 
@@ -19,7 +19,7 @@ class Backtester:
         self.data_loader = data_loader
         self.portfolioManager = portfolioManager
         self.data_feed = DataFeed(self.data_loader.load())
-
+        self.ticker = ticker
 
 
     def run(self):
@@ -31,4 +31,4 @@ class Backtester:
             data_point = self.data_feed.next()
             self.strategy.update_history(data_point)
             action = self.strategy.generate_action()
-            self.portfolioManager.execute_order(action, data_point['Close'])
+            self.portfolioManager.execute_order(action, data_point['Close', self.ticker])

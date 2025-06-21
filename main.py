@@ -12,7 +12,7 @@ def main(args):
     data_loader = DataLoader(ticker=args.ticker, period=args.period, use_saved_data=True)
     portfolio = Portfolio()
     portfolio_manager = PortfolioManager(portfolio)
-    backtester = Backtester(strategy, data_loader, portfolio_manager)
+    backtester = Backtester(strategy, data_loader, portfolio_manager, args.ticker)
     backtester.run()
     plot_data(data_loader.load(), f"Chart for {args.ticker}")
 

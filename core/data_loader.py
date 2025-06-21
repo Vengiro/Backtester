@@ -29,7 +29,4 @@ class DataLoader:
                 os.mkdir("datacache") if not os.path.exists("datacache") else None
                 dataset.to_parquet(filename)
                 print(f"Data saved to {filename}")
-            dataset.to_parquet(filename)
-            print(f"Data saved to {filename}")
-
         return dataset

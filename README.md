@@ -34,7 +34,7 @@ A lightweight and modular Python framework for backtesting trading strategies us
 * `matplotlib`
 * `yfinance`
 * `ccxt`
-* `fastparquet`
+* `pyarrow`
 
 Install dependencies with:
 

@@ -3,7 +3,7 @@ Example of a simple moving average strategy
 """
 from core.strategy import Strategy
 class SimpleMovingAverageStrategy(Strategy):
-    def __init__(self, short_window: int = 20, long_window: int = 50):
+    def __init__(self, short_window: int = 20, long_window: int = 50, ticker: str = "MSFT"):
         """
         Initialize the SimpleMovingAverageStrategy with short and long moving average windows.
 
@@ -13,6 +13,7 @@ class SimpleMovingAverageStrategy(Strategy):
         super().__init__()
         self.short_window = short_window
         self.long_window = long_window
+        self.ticker = ticker
 
 
     def generate_action(self) -> str:
@@ -30,8 +31,8 @@ class SimpleMovingAverageStrategy(Strategy):
         # Kinda slow since we are calculating the moving averages every time
         # Ok for backtesting and small datasets, but not for live trading
 
-        short_ma = self.history['Close'].rolling(window=self.short_window).mean()
-        long_ma = self.history['Close'].rolling(window=self.long_window).mean()
+        short_ma = self.history['Close', self.ticker].rolling(window=self.short_window).mean()
+        long_ma = self.history['Close', self.ticker].rolling(window=self.long_window).mean()
         if short_ma.iloc[-1] > long_ma.iloc[-1] and short_ma.iloc[-2] <= long_ma.iloc[-2]:
             return "buy"
         elif short_ma.iloc[-1] < long_ma.iloc[-1] and short_ma.iloc[-2] >= long_ma.iloc[-2]:
