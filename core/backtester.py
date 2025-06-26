@@ -29,6 +29,6 @@ class Backtester:
         """
         while self.data_feed.has_next():
             data_point = self.data_feed.next()
-            self.strategy.update_history(data_point)
             action = self.strategy.generate_action()
-            self.portfolioManager.execute_order(action, data_point['Close', self.ticker])
+            self.portfolioManager.execute_order(action, data_point['Open', self.ticker])
+            self.strategy.update_history(data_point)

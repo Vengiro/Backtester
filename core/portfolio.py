@@ -1,6 +1,6 @@
-
+import pandas as pd
 class Portfolio:
-    def __init__(self, cash: float = 10000.0):
+    def __init__(self, cash: float = 10000.0, fee= 0.001):
         """
         Initialize the Portfolio with a starting cash amount.
 
@@ -8,6 +8,7 @@ class Portfolio:
         """
         self.cash = cash
         self.asset = 0.0
+        self.fee = fee
 
 
     def execute(self, order: dict, price: float):
@@ -16,11 +17,11 @@ class Portfolio:
         """
         if order["type"] == "buy" and self.cash >= order["amount"] * price:
             self.asset += order["amount"]
-            self.cash -= order["amount"] * price
+            self.cash -= order["amount"] * price  * (1 + self.fee)
 
         elif order["type"] == "sell" and self.asset >= order["amount"]:
             self.asset -= order["amount"]
-            self.cash += order["amount"] * price
+            self.cash += order["amount"] * price * (1 - self.fee)
 
 
     def get_value(self, price: float) -> float:
@@ -33,6 +34,7 @@ class Portfolio:
         return self.cash + self.asset * price
 
 
+
 class PortfolioManager:
     def __init__(self, portfolio: Portfolio, exposure: float = 0.1):
         """
@@ -40,6 +42,10 @@ class PortfolioManager:
         """
         self.portfolio = portfolio
         self.exposure = exposure
+        self.history = []
+        self.nb_trades = 0
+        self.nb_wins = 0
+        self.nb_losses = 0
 
     def execute_order(self, action: str,  price: float):
         """
@@ -54,6 +60,7 @@ class PortfolioManager:
         else:
             return
         self.portfolio.execute(order, price)
+        self.history.append(self.portfolio.get_value(price))
 
     def get_portfolio_value(self, price: float) -> float:
         """
@@ -63,3 +70,26 @@ class PortfolioManager:
         :return: Total value of the portfolio.
         """
         return self.portfolio.get_value(price)
+
+    def compute_metrics(self):
+        """
+        Compute and return performance metrics of the portfolio.
+        """
+        df = pd.DataFrame(self.history, columns=["value"])
+        df["returns"] = df["value"].pct_change().fillna(0)
+        df["cumulative_returns"] = (1 + df["returns"]).cumprod() - 1
+
+        sharp = df["returns"].mean() / df["returns"].std() if df["returns"].std() != 0 else 0
+
+        peak = df["value"].cummax()
+        drawdown = (df["value"] - peak) / peak
+        max_drawdown = drawdown.min() if not drawdown.empty else 0
+        total_return = df["cumulative_returns"].iloc[-1] if not df["cumulative_returns"].empty else 0
+        return {
+            "total_return": total_return,
+            "max_drawdown %": max_drawdown * 100,
+            "sharp ratio": sharp,
+            "nb_trades": self.nb_trades,
+            "nb_wins": self.nb_wins,
+            "nb_losses": self.nb_losses
+        }
