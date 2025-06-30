@@ -6,6 +6,9 @@ from core.data_feed import DataFeed
 from core.data_loader import DataLoader
 from core.portfolio import PortfolioManager
 
+map = { "buy": 1, "sell": -1, "hold": 0 }
+
+
 class Backtester:
     def __init__(self, strategy: Strategy, data_loader: DataLoader, portfolioManager: PortfolioManager, ticker: str):
         """
@@ -20,6 +23,8 @@ class Backtester:
         self.portfolioManager = portfolioManager
         self.data_feed = DataFeed(self.data_loader.load())
         self.ticker = ticker
+        self.history = []
+
 
 
     def run(self):
@@ -30,5 +35,6 @@ class Backtester:
         while self.data_feed.has_next():
             data_point = self.data_feed.next()
             action = self.strategy.generate_action()
+            self.history.append(map[action])
             self.portfolioManager.execute_order(action, data_point['Open', self.ticker])
             self.strategy.update_history(data_point)

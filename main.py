@@ -14,7 +14,7 @@ def main(args):
     portfolio_manager = PortfolioManager(portfolio)
     backtester = Backtester(strategy, data_loader, portfolio_manager, args.ticker)
     backtester.run()
-    plot_data(data_loader.load(), f"Chart for {args.ticker}")
+    plot_data(data_loader.load(), backtester.history, f"Chart for {args.ticker}")
 
 
 
