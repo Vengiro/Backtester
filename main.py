@@ -4,17 +4,20 @@ from core.display import plot_data
 from core.data_loader import DataLoader
 from core.portfolio import Portfolio, PortfolioManager
 from strategies.simple_MA import SimpleMovingAverageStrategy
+from strategies.simple_MR import MeanReversionStrategy
 import argparse
 import yfinance
 
 def main(args):
-    strategy = SimpleMovingAverageStrategy(short_window=20, long_window=50)
+    #strategy = SimpleMovingAverageStrategy(short_window=20, long_window=50)
+    strategy = MeanReversionStrategy(window=10, threshold=0.05, ticker=args.ticker)
     data_loader = DataLoader(ticker=args.ticker, period=args.period, use_saved_data=True)
     portfolio = Portfolio()
     portfolio_manager = PortfolioManager(portfolio)
     backtester = Backtester(strategy, data_loader, portfolio_manager, args.ticker)
     backtester.run()
     plot_data(data_loader.load(), backtester.history, f"Chart for {args.ticker}")
+    print(f"Metrics: {portfolio_manager.compute_metrics()}")
 
 
 

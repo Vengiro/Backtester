@@ -46,6 +46,7 @@ class PortfolioManager:
         self.nb_trades = 0
         self.nb_wins = 0
         self.nb_losses = 0
+        self.open_trades = {"buy": [], "sell": []}
 
     def execute_order(self, action: str,  price: float):
         """
@@ -54,8 +55,10 @@ class PortfolioManager:
         :param order: Order to be executed, should be a dictionary with 'type' and 'amount'.
         """
         if action == "buy":
+            self.open_trades["buy"].append(price)
             order = {"type": "buy", "amount": self.portfolio.cash * self.exposure}
         elif action == "sell":
+            self.open_trades["sell"].append(price)
             order = {"type": "sell", "amount": self.portfolio.asset * self.exposure}
         else:
             return
