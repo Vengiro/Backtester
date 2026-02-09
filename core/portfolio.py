@@ -1,4 +1,6 @@
 import pandas as pd
+from utils import Position, Order
+from collections import defaultdict
 class Portfolio:
     def __init__(self, cash: float = 10000.0, fee= 0.001):
         """
@@ -7,21 +9,21 @@ class Portfolio:
         :param cash: Initial cash available for trading.
         """
         self.cash = cash
-        self.asset = 0.0
+        self.asset = defaultdict(Position)
         self.fee = fee
 
 
-    def execute(self, order: dict, price: float):
+    def execute(self, order: Order, price: float):
         """
         Execute a trade based on the order type and amount.
         """
-        if order["type"] == "buy" and self.cash >= order["amount"] * price:
-            self.asset += order["amount"]
-            self.cash -= order["amount"] * price  * (1 + self.fee)
+        if order.type == "buy" and self.cash >= order.amount * price:
+            self.asset[order.symbol].update(price, order.amount)
+            self.cash -= order.amount * price  * (1 + self.fee)
 
-        elif order["type"] == "sell" and self.asset >= order["amount"]:
-            self.asset -= order["amount"]
-            self.cash += order["amount"] * price * (1 - self.fee)
+        elif order.type == "sell":
+            self.asset[order.symbol].update(price, -order.amount)
+            self.cash += order.amount * price * (1 - self.fee)
 
 
     def get_value(self, price: float) -> float:
@@ -31,7 +33,9 @@ class Portfolio:
         :param price: Current price of the asset.
         :return: Total value of the portfolio.
         """
-        return self.cash + self.asset * price
+        all_pos = self.asset.values()
+        asset_value = sum(pos.get_value(price) for pos in all_pos)
+        return self.cash + asset_value
 
 
 
@@ -46,22 +50,20 @@ class PortfolioManager:
         self.nb_trades = 0
         self.nb_wins = 0
         self.nb_losses = 0
-        self.open_trades = {"buy": [], "sell": []}
 
-    def execute_order(self, action: str,  price: float):
+    def execute_order(self, action: str, tick:str,  price: float):
         """
         Execute an order on the portfolio.
 
         :param order: Order to be executed, should be a dictionary with 'type' and 'amount'.
         """
         if action == "buy":
-            self.open_trades["buy"].append(price)
-            order = {"type": "buy", "amount": self.portfolio.cash * self.exposure}
+            order = Order(symbol=tick, type="buy", amount=self.portfolio.cash * self.exposure / price, price=price)
         elif action == "sell":
-            self.open_trades["sell"].append(price)
-            order = {"type": "sell", "amount": self.portfolio.asset * self.exposure}
+            order = Order(symbol=tick, type="sell", amount=self.portfolio.asset[tick].amount, price=price)
         else:
             return
+
         self.portfolio.execute(order, price)
         self.history.append(self.portfolio.get_value(price))
 
